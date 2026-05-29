@@ -13,7 +13,7 @@ const expiration = '24h'
 
 router.post('/register', async (req, res) => {
     try {
-
+        console.log(req.body)
         const saltRounds = Number(process.env.SALT_ROUNDS)
         // hash password first
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
