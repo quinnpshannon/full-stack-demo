@@ -27,11 +27,11 @@ router.post('/register', async (req, res) => {
          // create a token
         const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration })
         const user = {
-            username: user.username,
-            email: user.email,
-            _id: user._id
+            username: userDB.username,
+            email: userDB.email,
+            _id: userDB._id
         }
-        res.status(201).json({ token, returnUser })
+        res.status(201).json({ token, user })
 
     } catch(err) {
         console.log(err.message)
