@@ -1,15 +1,16 @@
 const express = require("express")
 const Book = require("../models/Book")
+const authMiddleware = require("../utils/auth")
 // first we npm i cors, and require it
 
 const route = express.Router()
 
 route.use(express.json())
-
-route.get("/user/:user", async (req, res) =>{
+route.use(authMiddleware)
+route.get("/user/", async (req, res) =>{
     // res.render("index.ejs") <- for testing
     try{
-            const allBooks = await Book.find({user:req.params.user});
+            const allBooks = await Book.find({user:req.user._id});
             res.json({
                 books: allBooks
             });
@@ -24,7 +25,8 @@ route.get("/user/:user", async (req, res) =>{
 route.delete("/:id", async (req, res) =>{
     // res.send("Deleting Book...")
     try{
-        await Book.findByIdAndDelete(req.params.id);
+        const deleted = await Book.findByIdAndDelete(req.params.id);
+        res.json({book: deleted})
     }catch(error){
         console.error(error)
         res.status(500).send("There was an issue Deleting the book...")
@@ -34,13 +36,13 @@ route.delete("/:id", async (req, res) =>{
 
 // UPDATE
 route.put("/:id", async (req, res) =>{
-
     try{
         const updatedBook = await Book.findByIdAndUpdate(
             req.params.id,
             req.body,
             { returnDocument: "after" }
-        ).exec();
+        );
+        res.json({book: updatedBook})
     }catch(error){
         console.error(error);
         res.status(500).send("Small issue with the update...")
@@ -54,7 +56,7 @@ route.post('/', (req, res) => {
     Book.create(req.body)
         .then(createdBook => {
             console.log('Book has successfuly been created!')
-            console.log(req.body)
+            res.send({book: createdBook})
         }).catch(error => {
             console.error('Error Creating Book!')
             res.status(500).send("ISSUE CREATING BOOK!")

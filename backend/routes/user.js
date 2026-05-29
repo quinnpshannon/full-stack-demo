@@ -12,8 +12,12 @@ const expiration = '24h'
 
 router.post('/register', async (req, res) => {
     try {
-        console.log(req.body)
 
+        const valid=await User.findOne({username: req.body.username})
+        if(valid){
+            res.json({error: "unavailable"})
+            return
+        }
         const userDB = await User.create({
             ...req.body
         })
@@ -41,8 +45,6 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-
-    console.log(req.body)
     try {
         // find the user
         const user = await User.findOne({ username: req.body.username })
@@ -53,7 +55,6 @@ router.post('/login', async (req, res) => {
         // check the password
         const correctPassword = await user.isCorrectPassword(req.body.password)
 
-        console.log(correctPassword)
         if (!correctPassword) {
             return res.status(400).json({ message: 'Incorrect username or password' })
         }

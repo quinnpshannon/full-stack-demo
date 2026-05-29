@@ -16,7 +16,11 @@
     outline-offset: 2px;
   }
 }
-
+nav {
+  display: flex;
+  background-color: blue;
+  width: 100vw;
+}
 .hero {
   position: relative;
 

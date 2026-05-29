@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 
 
-function Register({setToken, setUser}) {
-  async function getData(body) {
+function Register({setLogin}) {
+  const [available, setAvailable] = useState(true)
+
+  async function getData(body, form) {
     const data = await fetch(import.meta.env.VITE_BACKEND_URL+"/api/users/register", {
       method: "POST",
       headers: {
@@ -11,24 +13,21 @@ function Register({setToken, setUser}) {
       body: JSON.stringify(body),
     });
     const response = await data.json();
-    console.log(response);
-    setToken(response.token);
-    setUser(response.user)
-    return response;
+    if(response.error=="unavailable"){
+      setAvailable(false)
+      form.reset();
+      return
+    }
+    setLogin(response.token, response.user)
   }
-  useEffect(() => {
-    // getData();
-  }, []);
   function handleSubmit(e) {
     e.preventDefault();
-    console.log(e);
     const body = {
       username: e.target[0].value.trim(),
       email: e.target[1].value.trim(),
       password: e.target[2].value.trim(),
     };
-    console.log(body)
-    getData(body);
+    getData(body, e.target);
   }
   return (
     <>
@@ -42,6 +41,7 @@ function Register({setToken, setUser}) {
         <input name="password"></input>
         <input type="submit" value="Register" />
       </form>
+      {!available && <h3>That Username / email is not available! Did you forget your information?</h3>}
     </>
   );
 }
