@@ -4,6 +4,7 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 require("./utils/connect.js")
 const userRoute = require("./routes/user.js")
+const bookRoute = require("./routes/books.js")
 
 
 const PORT = process.env.PORT || 4000
@@ -17,6 +18,7 @@ app.use(cors({
 }))
 
 app.use('/api/users', userRoute)
+app.use('/api/books', bookRoute)
 
 app.get("/", (req, res)=>{
     res.send("In it to Win it!")
