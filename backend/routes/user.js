@@ -14,8 +14,7 @@ const expiration = '24h'
 router.post('/register', async (req, res) => {
     try {
 
-        const saltRounds = process.env.SALT_ROUNDS
-
+        const saltRounds = Number(process.env.SALT_ROUNDS)
         // hash password first
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
 
@@ -32,8 +31,12 @@ router.post('/register', async (req, res) => {
 
          // create a token
         const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration })
-
-        res.status(201).json({ token, user })
+        const returnUser = {
+            username: user.username,
+            email: user.email,
+            _id: user._id
+        }
+        res.status(201).json({ token, returnUser })
 
     } catch(err) {
         console.log(err.message)
@@ -69,7 +72,7 @@ router.post('/login', async (req, res) => {
 
          // create a token
         const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration })
-
+        delete user.password
         res.status(200).json({ token, user })
 
     } catch(err) {

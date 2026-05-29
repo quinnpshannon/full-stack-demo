@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt")
- 
+
+const saltRounds = Number(process.env.SALT_ROUNDS)
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -23,10 +25,9 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre("save", async function (next) {
     if (this.isNew || this.isModified("password")) {
-        this.password = await bcrypt.hash(this.password, process.env.SALT_ROUNDS);
+        this.password = await bcrypt.hash(this.password, saltRounds);
     }
     
-    next();
 });
 
 userSchema.methods.isCorrectPassword = async function (password) {
