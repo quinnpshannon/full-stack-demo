@@ -1,5 +1,4 @@
 const express = require('express')
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const router = express.Router()
@@ -14,24 +13,20 @@ const expiration = '24h'
 router.post('/register', async (req, res) => {
     try {
         console.log(req.body)
-        const saltRounds = Number(process.env.SALT_ROUNDS)
-        // hash password first
-        const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
 
-        const user = await User.create({
-            ...req.body,
-            password: hashedPassword
+        const userDB = await User.create({
+            ...req.body
         })
 
         const payload = { 
-            username: user.username,  
-            email: user.email,
-            _id: user._id
+            username: userDB.username,  
+            email: userDB.email,
+            _id: userDB._id
         }
 
          // create a token
         const token = jwt.sign({ data: payload }, secret, { expiresIn: expiration })
-        const returnUser = {
+        const user = {
             username: user.username,
             email: user.email,
             _id: user._id
@@ -47,20 +42,20 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
 
+    console.log(req.body)
     try {
         // find the user
-        const user = await User.findOne({ email: req.body.email })
-
+        const user = await User.findOne({ username: req.body.username })
         // check if the user exists
         if (!user) {
-            return res.status(400).json({ message: 'Incorrect email or password' })
+            return res.status(400).json({ message: 'Incorrect username or password' })
         }
-
         // check the password
-        const correctPassword = await bcrypt.compare(req.body.password, user.password)
+        const correctPassword = await user.isCorrectPassword(req.body.password)
 
+        console.log(correctPassword)
         if (!correctPassword) {
-            return res.status(400).json({ message: 'Incorrect email or password' })
+            return res.status(400).json({ message: 'Incorrect username or password' })
         }
 
         // create a token
